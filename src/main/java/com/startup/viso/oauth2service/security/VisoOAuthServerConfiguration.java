@@ -37,11 +37,31 @@ public class VisoOAuthServerConfiguration {
                     s.add("web_client");
                     s.add("viso_read");})
                 .redirectUris(uris -> {
-                    uris.add("http://127.0.0.1:8901//api/v1/oauth2/token");
+                    uris.add("http://127.0.0.1:8901/api/v1/oauth2/token");
                     uris.add("http://127.0.0.1:8901/authorized");
                     uris.add("http://127.0.0.1:8901/login/oauth2/viso-client-oidc");})
                 .build();
-        return new InMemoryRegisteredClientRepository(registeredClient);
+
+        RegisteredClient testClient = RegisteredClient
+                .withId(UUID.randomUUID().toString())
+                .clientName("TEST CLIENT")
+                .clientId("test_client")
+                .clientSecret(passwordEncoder.encode("test_secret"))
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .authorizationGrantTypes(types -> {
+                    types.add(AuthorizationGrantType.CLIENT_CREDENTIALS);
+                    types.add(AuthorizationGrantType.AUTHORIZATION_CODE);
+                    types.add(AuthorizationGrantType.REFRESH_TOKEN);})
+                .scopes(s -> {
+                    s.add("test.read");
+                    s.add("test.write");})
+                .redirectUris(uris -> {
+                    uris.add("http://127.0.0.1:8901/api/v1/oauth2/token");
+                    uris.add("http://127.0.0.1:8904/authorized");
+                    uris.add("http://127.0.0.1:8901/login/oauth2/test-client-oidc");})
+                .build();
+
+        return new InMemoryRegisteredClientRepository(registeredClient, testClient);
     }
 
     @Autowired
